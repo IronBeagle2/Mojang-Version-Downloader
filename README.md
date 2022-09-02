@@ -6,5 +6,5 @@
  - Server JAR
  - Server EXE
  - Server mappings
-###### Usage
+## Usage
 Run the latest exe from releases.
