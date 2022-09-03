@@ -26,8 +26,8 @@ namespace MojangVerDownloader
 
         public static void Start()
         {
-            Console.Title = "Mojang Version Downloader v1.0";
-            Console.WriteLine("Mojang Version Downloader v1.0");
+            Console.Title = "Mojang Version Downloader v1.1";
+            Console.WriteLine("Mojang Version Downloader v1.1");
             Console.WriteLine("by DEJVOSS Productions");
             Console.WriteLine("------------------------------");
 
@@ -52,7 +52,7 @@ namespace MojangVerDownloader
                         string vVal = vProp.Value.ToString();
                         Console.WriteLine($"Latest {vKey} is {vVal}");
                     }
-                    Console.WriteLine("------------------------------");
+                    Console.Write("------------------------------");
                 }
                 else if (oKey == "versions")
                 {
@@ -67,19 +67,17 @@ namespace MojangVerDownloader
 
                         string verName2 = verName.Substring(0, verName.Length - 5);
 
-                        Console.WriteLine($"{vers.id} ({vers.type})");
-                        Console.WriteLine($"{vers.url}");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"\n{vers.id} ({vers.type})");
+                        Console.ForegroundColor = ConsoleColor.Gray;
                         versionJson(vers.url, vers.type, verName2);
                     }
 
                     Console.WriteLine("------------------------------");
+                    Console.WriteLine("Finished!");
+                    Console.WriteLine("------------------------------");
                 }
-
-                //Console.WriteLine(oKey);
             }
-
-
-
             Console.ReadLine();
         }
 
@@ -87,7 +85,6 @@ namespace MojangVerDownloader
         {
             WebClient client = new WebClient();
             string origJson = client.DownloadString(url);
-            //Console.WriteLine(origJson);
 
             JObject origObj = JsonConvert.DeserializeObject<JObject>(origJson);
             var origProps = origObj.Properties();
@@ -107,114 +104,43 @@ namespace MojangVerDownloader
                         string dlKey = dlProp.Name;
                         string dlVal = dlProp.Value.ToString();
 
+                        JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
+                        var dl2Props = dl2Obj.Properties();
+
+                        foreach (var dl2Prop in dl2Props)
+                        {
+                            string dl2Key = dl2Prop.Name;
+                            string dl2Val = dl2Prop.Value.ToString();
+
+                            if (dl2Key == "url")
+                            {
+                                versionUrl = dl2Prop.Value.ToString();
+                            }
+                            else if (dl2Key == "sha1")
+                            {
+                                fileSha1 = dl2Val;
+                            }
+                        }
+                        Console.WriteLine($"{versionUrl}");
+
                         if (dlKey == "client")
                         {
-                            JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                            var dl2Props = dl2Obj.Properties();
-
-                            foreach (var dl2Prop in dl2Props)
-                            {
-                                string dl2Key = dl2Prop.Name;
-                                string dl2Val = dl2Prop.Value.ToString();
-
-                                if (dl2Key == "url")
-                                {
-                                    versionUrl = dl2Prop.Value.ToString();
-                                }
-                                else if (dl2Key == "sha1")
-                                {
-                                    fileSha1 = dl2Val;
-                                }
-                            }
-                            Console.WriteLine($"{versionUrl}: {verName} {fileSha1}");
                             downloadFile($"downloads\\{category}\\{verName}", versionUrl, "client.jar", fileSha1, verName);
                         }
                         else if (dlKey == "server")
                         {
-                            JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                            var dl2Props = dl2Obj.Properties();
-
-                            foreach (var dl2Prop in dl2Props)
-                            {
-                                string dl2Key = dl2Prop.Name;
-                                string dl2Val = dl2Prop.Value.ToString();
-
-                                if (dl2Key == "url")
-                                {
-                                    versionUrl = dl2Prop.Value.ToString();
-                                }
-                                else if (dl2Key == "sha1")
-                                {
-                                    fileSha1 = dl2Val;
-                                }
-                            }
-                            Console.WriteLine($"{versionUrl}: {verName} {fileSha1}");
                             downloadFile($"downloads\\{category}\\{verName}", versionUrl, "server.jar", fileSha1, verName);
                         }
                         else if (dlKey == "windows_server")
                         {
-                            JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                            var dl2Props = dl2Obj.Properties();
-
-                            foreach (var dl2Prop in dl2Props)
-                            {
-                                string dl2Key = dl2Prop.Name;
-                                string dl2Val = dl2Prop.Value.ToString();
-
-                                if (dl2Key == "url")
-                                {
-                                    versionUrl = dl2Prop.Value.ToString();
-                                }
-                                else if (dl2Key == "sha1")
-                                {
-                                    fileSha1 = dl2Val;
-                                }
-                            }
-                            Console.WriteLine($"{versionUrl}: {verName} {fileSha1}");
                             downloadFile($"downloads\\{category}\\{verName}", versionUrl, "windows_server.exe", fileSha1, verName);
                         }
                         else if (dlKey == "client_mappings")
                         {
-                            JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                            var dl2Props = dl2Obj.Properties();
-
-                            foreach (var dl2Prop in dl2Props)
-                            {
-                                string dl2Key = dl2Prop.Name;
-                                string dl2Val = dl2Prop.Value.ToString();
-
-                                if (dl2Key == "url")
-                                {
-                                    versionUrl = dl2Prop.Value.ToString();
-                                }
-                                else if (dl2Key == "sha1")
-                                {
-                                    fileSha1 = dl2Val;
-                                }
-                            }
-                            Console.WriteLine($"{versionUrl}: {verName} {fileSha1}");
                             downloadFile($"downloads\\{category}\\{verName}", versionUrl, "client.txt", fileSha1, verName);
                         }
                         else if (dlKey == "server_mappings")
                         {
-                            JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                            var dl2Props = dl2Obj.Properties();
-
-                            foreach (var dl2Prop in dl2Props)
-                            {
-                                string dl2Key = dl2Prop.Name;
-                                string dl2Val = dl2Prop.Value.ToString();
-
-                                if (dl2Key == "url")
-                                {
-                                    versionUrl = dl2Prop.Value.ToString();
-                                }
-                                else if (dl2Key == "sha1")
-                                {
-                                    fileSha1 = dl2Val;
-                                }
-                            }
-                            Console.WriteLine($"{versionUrl}: {verName} {fileSha1}");
                             downloadFile($"downloads\\{category}\\{verName}", versionUrl, "server.txt", fileSha1, verName);
                         }
                         else
@@ -255,17 +181,16 @@ namespace MojangVerDownloader
                         fullFileHash = formatted.ToString();
                     }
                 }
-                //Console.WriteLine("Hash: " + fullFileHash);
                 if (fullFileHash == fileHash)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Dowloaded!" + "\n");
+                    Console.WriteLine("Dowloaded!");
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error! Attempting again!" + "\n");
+                    Console.WriteLine("Error! Attempting again!");
                     Console.ForegroundColor = ConsoleColor.Gray;
                     File.Delete($"{dir}\\{fileName}");
                     downloadFile(dir, url, fileName, fileHash, verName);
