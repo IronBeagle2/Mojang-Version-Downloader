@@ -125,23 +125,23 @@ namespace MojangVerDownloader
 
                         if (dlKey == "client")
                         {
-                            downloadFile($"downloads\\{category}\\{verName}", versionUrl, "client.jar", fileSha1, verName);
+                            downloadFile($"downloads2\\{category}\\client", versionUrl, $"{verName}.jar", fileSha1, verName);
                         }
                         else if (dlKey == "server")
                         {
-                            downloadFile($"downloads\\{category}\\{verName}", versionUrl, "server.jar", fileSha1, verName);
+                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.jar", fileSha1, verName);
                         }
                         else if (dlKey == "windows_server")
                         {
-                            downloadFile($"downloads\\{category}\\{verName}", versionUrl, "windows_server.exe", fileSha1, verName);
+                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.exe", fileSha1, verName);
                         }
                         else if (dlKey == "client_mappings")
                         {
-                            downloadFile($"downloads\\{category}\\{verName}", versionUrl, "client.txt", fileSha1, verName);
+                            downloadFile($"downloads2\\{category}\\client", versionUrl, $"{verName}.txt", fileSha1, verName);
                         }
                         else if (dlKey == "server_mappings")
                         {
-                            downloadFile($"downloads\\{category}\\{verName}", versionUrl, "server.txt", fileSha1, verName);
+                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.txt", fileSha1, verName);
                         }
                         else
                         {
@@ -184,7 +184,7 @@ namespace MojangVerDownloader
                 if (fullFileHash == fileHash)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine("Dowloaded!");
+                    Console.WriteLine($"Dowloaded {fileName} at {fileHash}");
                     Console.ForegroundColor = ConsoleColor.Gray;
                 }
                 else
