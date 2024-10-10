@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MojangVerDownloader.json.mojang;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,197 +15,117 @@ namespace MojangVerDownloader
 {
     internal class Program
     {
-        public static string mojangData = "http://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
-
-        public static string fileSha1;
-        public static string versionUrl;
-
+        public static String version = "v2.0";
+        public static String mojangData = "http://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+        public static WebClient client;
 
         static void Main(string[] args)
         {
+            Console.Title = $"Mojang Version Downloader {version} | (c) DEJVOSS Productions 2024";
+            Console.WriteLine($"Mojang Version Downloader {version}");
+            Console.WriteLine("------------------------------");
+
+            client = new WebClient();
             Start();
         }
 
-        public static void Start()
+        static void Start()
         {
-            Console.Title = "Mojang Version Downloader v1.1";
-            Console.WriteLine("Mojang Version Downloader v1.1");
-            Console.WriteLine("by DEJVOSS Productions");
+            //dl version list
+            string versionList = client.DownloadString(mojangData);
+
+            //parse verlist
+            VersionListJson verList = JsonConvert.DeserializeObject<VersionListJson>(versionList);
+            Console.WriteLine($"Latest release = {verList.latest.release}");
+            Console.WriteLine($"Latest snapshot = {verList.latest.snapshot}");
             Console.WriteLine("------------------------------");
 
-
-            WebClient client = new WebClient();
-            string origJson = client.DownloadString(mojangData);
-
-            JObject origObj = JsonConvert.DeserializeObject<JObject>(origJson);
-            var origProps = origObj.Properties();
-
-            foreach (var oProp in origProps)
+            //go through all versions
+            foreach (VersionListJsonVersion ver in verList.versions)
             {
-                string oKey = oProp.Name;
-                string oVal = oProp.Value.ToString();
-                if (oKey == "latest")
-                {
-                    JObject verObj = JsonConvert.DeserializeObject<JObject>(oVal);
-                    var verProps = verObj.Properties();
-                    foreach (var vProp in verProps)
-                    {
-                        string vKey = vProp.Name;
-                        string vVal = vProp.Value.ToString();
-                        Console.WriteLine($"Latest {vKey} is {vVal}");
-                    }
-                    Console.Write("------------------------------");
-                }
-                else if (oKey == "versions")
-                {
-                    List<jsonObject> data = JsonConvert.DeserializeObject<List<jsonObject>>(oVal);
+                Console.WriteLine($"{ver.id} ({ver.type})");
 
-                    foreach (var vers in data)
-                    {
-                        string verName = vers.url;
-                        int index = verName.LastIndexOf("/");
-                        if (index >= 0)
-                            verName = verName.Substring(verName.LastIndexOf("/") + 1);
-
-                        string verName2 = verName.Substring(0, verName.Length - 5);
-
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.WriteLine($"\n{vers.id} ({vers.type})");
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        versionJson(vers.url, vers.type, verName2);
-                    }
-
-                    Console.WriteLine("------------------------------");
-                    Console.WriteLine("Finished!");
-                    Console.WriteLine("------------------------------");
-                }
+                versionWorker(ver.id, ver.type, ver.url);
             }
+
             Console.ReadLine();
         }
 
-        public static void versionJson(string url, string category, string verName)
+        //gets and works with each VersionJson
+        static void versionWorker(String id, String type, String url)
         {
-            WebClient client = new WebClient();
-            string origJson = client.DownloadString(url);
+            //get VersionJson
+            String versionJson = client.DownloadString(url);
+            VersionJson verJson = JsonConvert.DeserializeObject<VersionJson>(versionJson);
 
-            JObject origObj = JsonConvert.DeserializeObject<JObject>(origJson);
-            var origProps = origObj.Properties();
+            //download client + mappings
+            Console.WriteLine("getting client...");
+            downloader($"{id}.jar", verJson.downloads.client.url, $"downloads\\{type}\\client", verJson.downloads.client.sha1);
+            Console.WriteLine("getting client_mappings...");
+            downloader($"{id}.txt", verJson.downloads.client_mappings.url, $"downloads\\{type}\\client", verJson.downloads.client_mappings.sha1);
 
-            foreach (var oProp in origProps)
-            {
-                string oKey = oProp.Name;
-                string oVal = oProp.Value.ToString();
+            //download server + mappings
+            Console.WriteLine("getting server...");
+            downloader($"{id}.jar", verJson.downloads.server.url, $"downloads\\{type}\\server", verJson.downloads.server.sha1);
+            Console.WriteLine("getting server_mappings...");
+            downloader($"{id}.txt", verJson.downloads.server_mappings.url, $"downloads\\{type}\\server", verJson.downloads.server_mappings.sha1);
 
-                if(oKey == "downloads")
-                {
-                    JObject dlObj = JsonConvert.DeserializeObject<JObject>(oVal);
-                    var dlProps = dlObj.Properties();
-
-                    foreach (var dlProp in dlProps)
-                    {
-                        string dlKey = dlProp.Name;
-                        string dlVal = dlProp.Value.ToString();
-
-                        JObject dl2Obj = JsonConvert.DeserializeObject<JObject>(dlVal);
-                        var dl2Props = dl2Obj.Properties();
-
-                        foreach (var dl2Prop in dl2Props)
-                        {
-                            string dl2Key = dl2Prop.Name;
-                            string dl2Val = dl2Prop.Value.ToString();
-
-                            if (dl2Key == "url")
-                            {
-                                versionUrl = dl2Prop.Value.ToString();
-                            }
-                            else if (dl2Key == "sha1")
-                            {
-                                fileSha1 = dl2Val;
-                            }
-                        }
-                        Console.WriteLine($"{versionUrl}");
-
-                        if (dlKey == "client")
-                        {
-                            downloadFile($"downloads2\\{category}\\client", versionUrl, $"{verName}.jar", fileSha1, verName);
-                        }
-                        else if (dlKey == "server")
-                        {
-                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.jar", fileSha1, verName);
-                        }
-                        else if (dlKey == "windows_server")
-                        {
-                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.exe", fileSha1, verName);
-                        }
-                        else if (dlKey == "client_mappings")
-                        {
-                            downloadFile($"downloads2\\{category}\\client", versionUrl, $"{verName}.txt", fileSha1, verName);
-                        }
-                        else if (dlKey == "server_mappings")
-                        {
-                            downloadFile($"downloads2\\{category}\\server", versionUrl, $"{verName}.txt", fileSha1, verName);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Unknown type!");
-                        }
-                    }
-                }
-            }
+            //finish
+            Console.WriteLine();
         }
 
-        public static void downloadFile(string dir, string url, string fileName, string fileHash, string verName)
+        static void downloader(String file, String url, String path, String sha1)
         {
-            if(!File.Exists($"{dir}\\{fileName}"))
-            {
-                Directory.CreateDirectory(dir);
+            //get full path
+            String filePath = $"{path}\\{file}";
 
-                using (var client2 = new WebClient())
-                {
-                    client2.DownloadFile(url, $"{dir}\\{fileName}");
-                }
-                downloadFile(dir, url, fileName, fileHash, verName);
+            //create dir
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+
+            //download file
+            if (!File.Exists(filePath))
+            {
+                client.DownloadFile(url, $"{path}\\{file}");
+            }
+
+            //check if hashes match => if yes continue, if no download again
+            if (getHash(filePath) == sha1)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Dowloaded!");
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
             else
             {
-                string fullFileHash = "";
-                using (FileStream fs = new FileStream($"{dir}\\{fileName}", FileMode.Open))
-                using (BufferedStream bs = new BufferedStream(fs))
-                {
-                    using (SHA1Managed sha1 = new SHA1Managed())
-                    {
-                        byte[] hash = sha1.ComputeHash(bs);
-                        StringBuilder formatted = new StringBuilder(2 * hash.Length);
-                        foreach (byte b in hash)
-                        {
-                            formatted.AppendFormat("{0:x2}", b);
-                        }
-                        fullFileHash = formatted.ToString();
-                    }
-                }
-                if (fullFileHash == fileHash)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"Dowloaded {fileName} at {fileHash}");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error! Attempting again!");
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    File.Delete($"{dir}\\{fileName}");
-                    downloadFile(dir, url, fileName, fileHash, verName);
-                }
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error! Attempting again!");
+                Console.ForegroundColor = ConsoleColor.Gray;
 
+                File.Delete(filePath);
+                downloader(file, url, path, sha1);
+            }
+
+        }
+
+        //gets file hash, courtesy of some stackoverflow user
+        static String getHash(String filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            using (BufferedStream bs = new BufferedStream(fs))
+            {
+                using (SHA1Managed sha1 = new SHA1Managed())
+                {
+                    byte[] hash = sha1.ComputeHash(bs);
+                    StringBuilder formatted = new StringBuilder(2 * hash.Length);
+                    foreach (byte b in hash)
+                    {
+                        formatted.AppendFormat("{0:x2}", b);
+                    }
+
+                    return formatted.ToString();
+                }
             }
         }
-    }
-
-    public class jsonObject
-    {
-        public string id { get; set; }
-        public string type { get; set; }
-        public string url { get; set; }
     }
 }
