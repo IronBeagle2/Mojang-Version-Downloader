@@ -16,6 +16,7 @@ namespace MojangVerDownloader.json.mojang
         public VersionJsonDownloadsObj client { get; set; }
         public VersionJsonDownloadsObj client_mappings { get; set; }
         public VersionJsonDownloadsObj server { get; set; }
+        public VersionJsonDownloadsObj windows_server { get; set; }
         public VersionJsonDownloadsObj server_mappings { get; set; }
     }
 

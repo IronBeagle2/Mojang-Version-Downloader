@@ -15,7 +15,7 @@ namespace MojangVerDownloader
 {
     internal class Program
     {
-        public static String version = "v2.0";
+        public static String version = "v2.1";
         public static String mojangData = "http://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
         public static WebClient client;
 
@@ -69,6 +69,11 @@ namespace MojangVerDownloader
             downloader($"{id}.jar", verJson.downloads.server.url, $"downloads\\{type}\\server", verJson.downloads.server.sha1);
             Console.WriteLine("getting server_mappings...");
             downloader($"{id}.txt", verJson.downloads.server_mappings.url, $"downloads\\{type}\\server", verJson.downloads.server_mappings.sha1);
+            if(verJson.downloads.windows_server !=  null)
+            {
+                Console.WriteLine("getting windows_server...");
+                downloader($"{id}.exe", verJson.downloads.windows_server.url, $"downloads\\{type}\\server", verJson.downloads.windows_server.sha1);
+            }
 
             //finish
             Console.WriteLine();
