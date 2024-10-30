@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +25,8 @@ namespace MojangVerDownloader
             Console.Title = $"Mojang Version Downloader {version} | (c) DEJVOSS Productions 2024";
             Console.WriteLine($"Mojang Version Downloader {version}");
             Console.WriteLine("------------------------------");
+
+            Process.Start("downloads\\");
 
             client = new WebClient();
             Start();
