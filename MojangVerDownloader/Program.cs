@@ -16,7 +16,7 @@ namespace MojangVerDownloader
 {
     internal class Program
     {
-        public static String version = "v2.1";
+        public static String version = "v2.2";
         public static String mojangData = "http://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
         public static WebClient client;
 
