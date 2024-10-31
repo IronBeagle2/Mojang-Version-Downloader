@@ -26,6 +26,7 @@ namespace MojangVerDownloader
             Console.WriteLine($"Mojang Version Downloader {version}");
             Console.WriteLine("------------------------------");
 
+            Directory.CreateDirectory("downloads\\");
             Process.Start("downloads\\");
 
             client = new WebClient();
