@@ -1,22 +1,17 @@
 ﻿using MojangVerDownloader.json.mojang;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MojangVerDownloader
 {
     internal class Program
     {
-        public static String version = "v2.2";
+        public static String version = "v2.3";
         public static String mojangData = "http://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
         public static WebClient client;
 
@@ -73,7 +68,7 @@ namespace MojangVerDownloader
             downloader($"{id}.jar", verJson.downloads.server.url, $"downloads\\{type}\\server", verJson.downloads.server.sha1);
             Console.WriteLine("getting server_mappings...");
             downloader($"{id}.txt", verJson.downloads.server_mappings.url, $"downloads\\{type}\\server", verJson.downloads.server_mappings.sha1);
-            if(verJson.downloads.windows_server !=  null)
+            if (verJson.downloads.windows_server != null)
             {
                 Console.WriteLine("getting windows_server...");
                 downloader($"{id}.exe", verJson.downloads.windows_server.url, $"downloads\\{type}\\server", verJson.downloads.windows_server.sha1);

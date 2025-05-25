@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MojangVerDownloader.json.mojang
 {
     public class VersionListJson
     {
-        public VersionListJsonLatest latest {  get; set; }
+        public VersionListJsonLatest latest { get; set; }
         public VersionListJsonVersion[] versions { get; set; }
     }
 
