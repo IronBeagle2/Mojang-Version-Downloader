@@ -11,4 +11,4 @@ Supports:<br>
 
 Usage<br>
 \-------<br>
-Just run the latest exe from releases. :)
+Just run the latest exe from releases :)
